@@ -966,7 +966,7 @@ function categorical!(df::DataFrame)
     df
 end
 
-function Base.append!(df1::DataFrame, df2::Union{AbstractDataFrame, DataFrameRow})
+function Base.append!(df1::DataFrame, df2::AbstractDataFrame)
     _names(df1) == _names(df2) || error("Column names do not match")
     nrows, ncols = size(df1)
     try
@@ -993,6 +993,8 @@ Base.convert(::Type{DataFrame}, d::AbstractDict) = DataFrame(d)
 ## push! a row onto a DataFrame
 ##
 ##############################################################################
+
+Base.push!(df::DataFrame, r::DataFrameRow) = append!(df, parent(r)[row(r),:])
 
 function Base.push!(df::DataFrame, dict::AbstractDict)
     i = 1
