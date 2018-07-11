@@ -1301,3 +1301,10 @@ import Base: vcat
 
 @deprecate showcols(df::AbstractDataFrame, all::Bool=false, values::Bool=true) describe(df, stats = [:eltype, :nmissing, :first, :last])
 @deprecate showcols(io::IO, df::AbstractDataFrame, all::Bool=false, values::Bool=true) show(io, describe(df, stats = [:eltype, :nmissing, :first, :last]), all)
+
+if VERSION >= v"0.7.0-DEV.1639"
+    import Base: collect
+    @deprecate collect(r::DataFrameRow) collect(pairs(r))
+else
+    Base.collect(r::DataFrameRow) = Tuple{Symbol, Any}[x for x in r]
+end

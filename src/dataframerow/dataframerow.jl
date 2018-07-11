@@ -43,15 +43,25 @@ Base.length(r::DataFrameRow) = size(parent(r), 2)
 
 Compat.lastindex(r::DataFrameRow) = size(parent(r), 2)
 
-Base.collect(r::DataFrameRow) = Tuple{Symbol, Any}[x for x in r]
-
-Base.start(r::DataFrameRow) = 1
+if VERSION >= v"0.7.0-DEV.1639"
+    function Base.start(r::DataFrameRow)
+        Base.depwarn("iteration over DataFrameRow will return values in the future:
+                      use pairs(r::DataFrameRow) to get the current behavior",
+                    :start)
+        return 1
+    end
+else
+    Base.start(r::DataFrameRow) = 1
+end
 
 Base.next(r::DataFrameRow, s) = ((_names(r)[s], r[s]), s + 1)
 
 Base.done(r::DataFrameRow, s) = s > length(r)
 
 Base.convert(::Type{Array}, r::DataFrameRow) = convert(Array, parent(r)[row(r),:])
+
+Base.keys(r::DataFrameRow) = names(parent(r))
+Base.values(r::DataFrameRow) = ntuple(col -> parent(r)[col][row(r)], length(r))
 
 # hash column element
 Base.@propagate_inbounds hash_colel(v::AbstractArray, i, h::UInt = zero(UInt)) = hash(v[i], h)
